@@ -5,13 +5,19 @@ dotenv.config();
 
 const { Pool } = pg;
 
-const pool = new Pool({
-  host: process.env.PGHOST || '127.0.0.1',
-  port: parseInt(process.env.PGPORT || '5432', 10),
-  database: process.env.PGDATABASE || 'event_manager_db',
-  user: process.env.PGUSER || 'postgres',
-  // Since we verified passwordless trust connection works locally, password is omitted
-});
+const pool = new Pool(
+  process.env.DATABASE_URL
+    ? { 
+        connectionString: process.env.DATABASE_URL, 
+        ssl: { rejectUnauthorized: false } 
+      }
+    : {
+        host: process.env.PGHOST || '127.0.0.1',
+        port: parseInt(process.env.PGPORT || '5432', 10),
+        database: process.env.PGDATABASE || 'event_manager_db',
+        user: process.env.PGUSER || 'postgres',
+      }
+);
 
 pool.on('error', (err) => {
   console.error('Unexpected error on idle PostgreSQL client', err);
